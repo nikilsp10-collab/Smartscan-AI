@@ -179,6 +179,38 @@ class SignalProcessor:
             estimated_snr_db=estimated_snr_db
         )
 
+    def compute_spectrogram(self, sample: SignalSample, time_bins: int = 40, freq_bins: int = 32) -> dict:
+        """
+        Computes 2D Time-Frequency Spectrogram (STFT) for waterfall / heatmap visualization.
+        Returns: { 'times_us': [...], 'freqs_mhz': [...], 'power_matrix': [[...], ...] }
+        """
+        x = sample.data
+        fs = sample.sampling_rate
+        f, t, Sxx = sp_signal.spectrogram(x, fs=fs, nperseg=128, noverlap=64)
+        
+        # Power in dB
+        Sxx_db = 10.0 * np.log10(np.maximum(Sxx, 1e-12))
+        
+        # Downsample matrix to uniform grid for snappy frontend rendering
+        f_step = max(1, len(f) // freq_bins)
+        t_step = max(1, len(t) // time_bins)
+        
+        f_sub = f[::f_step][:freq_bins]
+        t_sub = t[::t_step][:time_bins]
+        matrix_sub = Sxx_db[::f_step, ::t_step][:freq_bins, :time_bins]
+        
+        # Normalize matrix values to [0.0, 1.0] for color mapping
+        min_val = np.percentile(matrix_sub, 5)
+        max_val = np.percentile(matrix_sub, 98)
+        norm_matrix = (matrix_sub - min_val) / max(1e-6, max_val - min_val)
+        norm_matrix = np.clip(norm_matrix, 0.0, 1.0)
+        
+        return {
+            "freqs_mhz": np.round(f_sub / 1e6, 2).tolist(),
+            "times_us": np.round(t_sub * 1e6, 1).tolist(),
+            "matrix": np.round(norm_matrix, 3).tolist()
+        }
+
     def get_spectrum_preview(self, sample: SignalSample) -> dict:
         """Returns downsampled spectrum (e.g. 256 bins) for fast browser rendering."""
         freqs, power_db = self.compute_spectrum(sample)

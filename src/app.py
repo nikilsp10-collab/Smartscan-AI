@@ -40,6 +40,7 @@ def process_and_enqueue(sample):
     # Build preview payload for plotting
     time_preview = sample.to_dict(downsample_points=350)
     spectrum_preview = processor.get_spectrum_preview(sample)
+    spectrogram_preview = processor.compute_spectrogram(sample)
 
     payload = {
         "sample_id": sample.sample_id,
@@ -48,6 +49,7 @@ def process_and_enqueue(sample):
         "waveform_preview": time_preview["waveform_preview"],
         "frequencies_mhz": spectrum_preview["frequencies_mhz"],
         "power_db": spectrum_preview["power_db"],
+        "spectrogram": spectrogram_preview,
         "features": features.to_dict(),
         "prediction": prediction.to_dict(),
         "prioritization": prioritized_item.to_dict()
