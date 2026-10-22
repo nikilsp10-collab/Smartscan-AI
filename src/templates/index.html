@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartScan AI - Electronic Warfare Signal Prioritization</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <!-- Chart.js local offline bundle -->
+    <script src="/static/js/chart.min.js"></script>
+</head>
+<body>
+
+    <!-- Tactical Navigation Header -->
+    <header class="tactical-header">
+        <div class="logo-section">
+            <span class="logo-badge">SMARTSCAN</span>
+            <div class="logo-text">
+                <h1>SmartScan AI &bull; Tactical Signal Triage</h1>
+                <p>AI-Powered Intelligent Signal Analysis and Prioritization (Electronic Warfare Prototype)</p>
+            </div>
+        </div>
+
+        <div class="header-controls">
+            <button id="btn-inject-anomaly" class="btn btn-danger" title="Instantly insert an unknown/anomalous waveform to watch it jump to rank #1">
+                ⚡ Inject Anomaly
+            </button>
+            <button id="btn-inject-radar" class="btn" title="Inject a periodic pulsed radar signal">
+                🎯 Pulsed Radar
+            </button>
+            <button id="btn-inject-chirp" class="btn" title="Inject a linear frequency modulated chirp">
+                📡 LFM Chirp
+            </button>
+            <button id="btn-simulate-batch" class="btn btn-primary" title="Simulate a batch of 6 mixed signals">
+                🔄 Ingest Batch
+            </button>
+            <button id="btn-run-benchmark" class="btn btn-warning" title="Run Slide 9 performance comparison against fixed-order scanning">
+                📊 Run Benchmark
+            </button>
+            <button id="btn-clear-queue" class="btn" title="Clear current queue">
+                🗑️ Clear
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Tactical Grid -->
+    <main class="dashboard-grid">
+
+        <!-- Column 1: Adaptive Priority Queue -->
+        <section class="panel">
+            <div class="panel-header">
+                <h2><span>⚡</span> Adaptive Queue</h2>
+                <span id="queue-count" class="badge badge-critical">0 Signals</span>
+            </div>
+            <div class="panel-body">
+                <div id="queue-list" class="queue-list">
+                    <!-- Populated dynamically by dashboard.js -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Column 2: Waveform & Spectrum Visualizer -->
+        <section class="panel">
+            <div class="panel-header">
+                <h2><span>📈</span> Signal Visualizer</h2>
+                <div style="font-size: 11px; color: var(--text-muted);">
+                    Sample ID: <span id="diag-sample-id" style="color: var(--accent-cyan); font-family: var(--font-mono);">--</span>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="charts-container">
+                    <!-- Time Domain Oscillogram -->
+                    <div class="chart-box">
+                        <div class="chart-header">
+                            <span>Time-Domain Oscillogram (Voltage vs Time)</span>
+                            <span style="font-size: 10px; color: var(--text-muted);">Baseband Frame (500 µs)</span>
+                        </div>
+                        <div class="chart-canvas-wrapper">
+                            <canvas id="waveformCanvas"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Frequency Domain FFT Spectrum -->
+                    <div class="chart-box">
+                        <div class="chart-header">
+                            <span>Frequency-Domain Power Spectrum (FFT / PSD)</span>
+                            <span style="font-size: 10px; color: var(--text-muted);">Bandwidth Span (0 - 10 MHz)</span>
+                        </div>
+                        <div class="chart-canvas-wrapper">
+                            <canvas id="spectrumCanvas"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Column 3: AI Diagnostics & Explainability -->
+        <section class="panel">
+            <div class="panel-header">
+                <h2><span>🧠</span> AI Diagnostics & Explainability</h2>
+                <button id="btn-mark-reviewed" class="btn" style="padding: 4px 10px; font-size: 11px;">
+                    ✓ Mark Reviewed
+                </button>
+            </div>
+            <div class="panel-body">
+
+                <!-- Primary Scoring Block -->
+                <div class="diagnostic-section">
+                    <div class="stat-grid">
+                        <div class="stat-tile">
+                            <div class="stat-label">Predicted Emitter</div>
+                            <div id="diag-pred-type" class="stat-value" style="color: var(--accent-cyan);">--</div>
+                        </div>
+                        <div class="stat-tile">
+                            <div class="stat-label">Priority Score (0-100)</div>
+                            <div id="diag-prio-score" class="stat-value" style="color: var(--critical-red);">--</div>
+                        </div>
+                        <div class="stat-tile">
+                            <div class="stat-label">Anomaly Rating</div>
+                            <div id="diag-anomaly-score" class="stat-value">--</div>
+                        </div>
+                        <div class="stat-tile">
+                            <div class="stat-label">AI Confidence</div>
+                            <div id="diag-confidence" class="stat-value">--</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DSP Features Breakdown -->
+                <div class="diagnostic-section">
+                    <div class="diagnostic-title">Extracted DSP Features</div>
+                    <div class="stat-grid">
+                        <div class="stat-tile">
+                            <div class="stat-label">Center Freq</div>
+                            <div id="diag-center-freq" class="stat-value" style="font-size: 13px;">--</div>
+                        </div>
+                        <div class="stat-tile">
+                            <div class="stat-label">3-dB Bandwidth</div>
+                            <div id="diag-bandwidth" class="stat-value" style="font-size: 13px;">--</div>
+                        </div>
+                        <div class="stat-tile">
+                            <div class="stat-label">Estimated SNR</div>
+                            <div id="diag-snr" class="stat-value" style="font-size: 13px;">--</div>
+                        </div>
+                        <div class="stat-tile">
+                            <div class="stat-label">Spectral Entropy</div>
+                            <div id="diag-entropy" class="stat-value" style="font-size: 13px;">--</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Explainable Rationale -->
+                <div class="diagnostic-section">
+                    <div class="diagnostic-title">Why was this prioritized? (Explainable AI)</div>
+                    <div id="explain-list">
+                        <!-- Populated dynamically by dashboard.js -->
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Benchmark Comparison Modal (Slide 9) -->
+    <div id="benchmark-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Performance Benchmark: Fixed-Order vs Adaptive Review</h3>
+                <button id="btn-close-modal" class="close-btn">&times;</button>
+            </div>
+            <div id="benchmark-results-container">
+                <!-- Rendered dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Controller Script -->
+    <script src="/static/js/dashboard.js"></script>
+</body>
+</html>
