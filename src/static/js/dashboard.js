@@ -677,7 +677,7 @@ function renderBenchmarkResults(b) {
         </div>
 
         <div style="background: #080d14; padding: 14px; border-radius: 4px; border: 1px solid var(--border-hud); margin-bottom: 16px;">
-            <h4 style="font-family: var(--font-mono); font-size: 12px; color: #fff; margin-bottom: 6px;">EMPIRICAL PROOF (SLIDE 9 VERIFICATION):</h4>
+            <h4 style="font-family: var(--font-mono); font-size: 12px; color: #fff; margin-bottom: 6px;">EMPIRICAL PERFORMANCE ANALYSIS:</h4>
             <p style="font-size: 11px; color: var(--text-muted); line-height: 1.6;">
                 In traditional fixed-order sweeps, high-priority threats and anomalies waited until an average position of <strong>#${b.fixed_order_avg_position}</strong>. 
                 Under SmartScan AI's adaptive queue, they were promoted to an average position of <strong>#${b.adaptive_avg_position}</strong>, reducing critical review wait times by <strong>${b.position_improvement_pct}%</strong> without sacrificing real-time throughput (${b.average_latency_ms} ms / sample).
