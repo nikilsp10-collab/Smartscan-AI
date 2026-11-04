@@ -16,9 +16,8 @@ from src.app import app
 from src.config import SERVER_CONFIG
 
 if __name__ == "__main__":
-    print("=" * 60)
-    print("  SMARTSCAN AI - Electronic Warfare Signal Prioritization")
-    print(f"  Tactical Dashboard running at: http://{SERVER_CONFIG.host}:{SERVER_CONFIG.port}")
-    print("  Press CTRL+C to stop the server.")
-    print("=" * 60)
+    print("=" * 60, flush=True)
+    print("  SMARTSCAN AI - Electronic Warfare Signal Prioritization", flush=True)
+    print(f"  Tactical Dashboard running at: http://127.0.0.1:{SERVER_CONFIG.port}", flush=True)
+    print("=" * 60, flush=True)
     app.run(host=SERVER_CONFIG.host, port=SERVER_CONFIG.port, debug=False)

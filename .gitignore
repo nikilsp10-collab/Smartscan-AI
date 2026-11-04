@@ -13,6 +13,8 @@ __pycache__/
 data/*.db
 data/*.sqlite
 data/*.sqlite3
+data/*.log
+*.log
 
 # Test and coverage artifacts
 .pytest_cache/

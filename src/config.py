@@ -53,9 +53,9 @@ class PriorityWeights:
 
 @dataclass
 class ServerConfig:
-    host: str = "127.0.0.1"
+    host: str = "0.0.0.0"
     port: int = 5000
-    debug: bool = True
+    debug: bool = False
     db_path: str = "data/smartscan.db"
 
 
