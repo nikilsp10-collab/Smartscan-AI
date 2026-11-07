@@ -10,6 +10,7 @@ Provides REST endpoints for:
 - Automated Benchmarking (Fixed-Order vs Adaptive Review)
 """
 
+import os
 from flask import Flask, jsonify, render_template, request
 
 from src.benchmark import BenchmarkSuite
@@ -19,7 +20,11 @@ from src.models import SmartScanAIModels
 from src.priority_engine import AdaptivePriorityQueue, PriorityScoringEngine
 from src.simulator import SignalSimulator
 
-app = Flask(__name__)
+base_dir = os.path.abspath(os.path.dirname(__file__))
+template_dir = os.path.join(base_dir, "templates")
+static_dir = os.path.join(base_dir, "static")
+
+app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 
 # Initialize singletons
 simulator = SignalSimulator()
@@ -68,6 +73,8 @@ for s in initial_batch:
 # --- HTML Route ---
 
 @app.route("/")
+@app.route("/api/index")
+@app.route("/api/index.py")
 def index():
     """Serves the Tactical Operator Dashboard."""
     return render_template("index.html")
