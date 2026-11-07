@@ -135,9 +135,12 @@
                 <div class="secondary-visualizers-grid">
                     
                     <!-- Time-Frequency Spectrogram Heatmap -->
-                    <div class="mini-card">
+                    <div class="mini-card spectrogram-card">
                         <div class="card-caption compact">
-                            <strong>Time-Frequency Spectrogram (Thermal Power)</strong>
+                            <div class="caption-left">
+                                <span class="caption-icon yellow">🌊</span>
+                                <strong>Time-Frequency Spectrogram</strong>
+                            </div>
                             <span class="caption-meta">STFT HEATMAP</span>
                         </div>
                         <div class="mini-canvas-wrap">
@@ -145,14 +148,17 @@
                         </div>
                     </div>
 
-                    <!-- Direction Finding Radar Scope -->
-                    <div class="mini-card">
+                    <!-- Compact Direction Finding Radar Scope -->
+                    <div class="mini-card radar-card">
                         <div class="card-caption compact">
-                            <strong>Direction Finding Scope (PPI Bearing)</strong>
-                            <span class="caption-meta">360° AZIMUTH</span>
+                            <div class="caption-left">
+                                <span class="caption-icon green">🎯</span>
+                                <strong>DF Radar</strong>
+                            </div>
+                            <span class="caption-meta">360°</span>
                         </div>
                         <div class="mini-canvas-wrap radar-center">
-                            <canvas id="radarCanvas" width="130" height="130"></canvas>
+                            <canvas id="radarCanvas" width="110" height="110"></canvas>
                         </div>
                     </div>
 

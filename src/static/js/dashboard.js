@@ -152,12 +152,13 @@ function initCharts() {
 
 function initRadarScope() {
     const canvas = document.getElementById("radarCanvas");
+    if (!canvas) return;
     const ctx = canvas.getContext("2d");
     const w = canvas.width;
     const h = canvas.height;
     const cx = w / 2;
     const cy = h / 2;
-    const radius = w / 2 - 8;
+    const radius = Math.min(w, h) / 2 - 6;
 
     function drawRadar() {
         ctx.fillStyle = "rgba(8, 8, 10, 0.22)";
@@ -231,10 +232,12 @@ function initRadarScope() {
 
 function updateRadarTargets(items) {
     // Distribute current queue items across radar bearings
+    const canvas = document.getElementById("radarCanvas");
+    const maxRadius = canvas ? (canvas.width / 2 - 10) : 42;
     radarTargets = items.slice(0, 10).map((item, idx) => {
         const hash = item.sample_id.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0);
         const angle = (hash % 360) * (Math.PI / 180);
-        const distance = 15 + ((hash * 7) % 40);
+        const distance = 8 + ((hash * 7) % Math.max(10, Math.floor(maxRadius - 10)));
         return {
             id: item.sample_id,
             angle: angle,
@@ -567,7 +570,9 @@ function updateDashboardWithSample(sampleData) {
 
     // 1. Diagnostics Pane
     document.getElementById("diag-sample-id").textContent = sampleData.sample_id;
-    document.getElementById("diag-pred-type").textContent = prio.predicted_type;
+    const predEl = document.getElementById("diag-pred-type");
+    predEl.textContent = prio.predicted_type;
+    predEl.title = prio.predicted_type;
     document.getElementById("diag-prio-score").textContent = prio.priority_score;
     document.getElementById("diag-anomaly-score").textContent = `${(pred.anomaly_score * 100).toFixed(1)}%`;
     document.getElementById("diag-confidence").textContent = `${(pred.confidence * 100).toFixed(1)}%`;
