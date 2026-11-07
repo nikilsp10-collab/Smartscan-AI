@@ -4,7 +4,15 @@ import sys
 # Ensure project root is on Python path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
+from flask import jsonify, request
+from werkzeug.middleware.proxy_fix import ProxyFix
+
 from src.app import app
+
+
+@app.route("/api/debug-env")
+def debug_env():
+    return jsonify({k: v for k, v in request.environ.items() if isinstance(v, (str, int, float, bool))})
 
 
 class VercelPathFixMiddleware:
@@ -14,28 +22,19 @@ class VercelPathFixMiddleware:
         self.wsgi_app = wsgi_app
 
     def __call__(self, environ, start_response):
-        raw_path = (
-            environ.get("HTTP_X_MATCHED_PATH")
-            or environ.get("HTTP_X_FORWARDED_URI")
-            or environ.get("PATH_INFO", "")
-        )
+        matched_path = environ.get("HTTP_X_MATCHED_PATH")
+        if matched_path:
+            environ["PATH_INFO"] = matched_path.split("?")[0]
+        else:
+            path = environ.get("PATH_INFO", "")
+            for prefix in ["/api/index.py", "/api/index"]:
+                if path.startswith(prefix):
+                    path = path[len(prefix):] or "/"
+                    break
+            environ["PATH_INFO"] = path
 
-        # Strip any Vercel internal script prefix (/api/index.py or /api/index)
-        for prefix in ["/api/index.py", "/api/index", "api/index.py", "api/index"]:
-            if raw_path.startswith(prefix):
-                raw_path = raw_path[len(prefix):]
-                break
-
-        if not raw_path.startswith("/"):
-            raw_path = "/" + raw_path
-
-        # Strip query string if it was included in URI
-        if "?" in raw_path:
-            raw_path = raw_path.split("?", 1)[0]
-
-        environ["PATH_INFO"] = raw_path
         return self.wsgi_app(environ, start_response)
 
 
-# Apply WSGI middleware for Vercel
-app.wsgi_app = VercelPathFixMiddleware(app.wsgi_app)
+# Wrap with VercelPathFix and Werkzeug ProxyFix
+app.wsgi_app = ProxyFix(VercelPathFixMiddleware(app.wsgi_app), x_for=1, x_proto=1, x_host=1, x_prefix=1)
