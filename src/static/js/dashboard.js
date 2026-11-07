@@ -15,6 +15,7 @@ let waveformChart = null;
 let spectrumChart = null;
 let activeSampleId = null;
 let currentSampleData = null;
+let allQueueItems = [];
 
 // Live Sweep Mode State
 let isLiveSweepActive = false;
@@ -48,6 +49,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Audio Demodulator Button
     document.getElementById("btn-toggle-audio").addEventListener("click", toggleAudioPlayback);
+
+    // Queue Search Filter
+    const searchInput = document.getElementById("queue-search");
+    if (searchInput) {
+        searchInput.addEventListener("input", (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            if (!query) {
+                renderQueue(allQueueItems, false);
+            } else {
+                const filtered = allQueueItems.filter(item => 
+                    item.sample_id.toLowerCase().includes(query) ||
+                    item.predicted_type.toLowerCase().includes(query) ||
+                    item.priority_level.toLowerCase().includes(query)
+                );
+                renderQueue(filtered, false);
+            }
+        });
+    }
 });
 
 // ==========================================
@@ -293,8 +312,18 @@ function stopAudio() {
     });
     audioNodes = [];
     isAudioPlaying = false;
-    document.getElementById("btn-toggle-audio").innerHTML = "Play Audio";
-    document.getElementById("btn-toggle-audio").classList.remove("active");
+    
+    const btn = document.getElementById("btn-toggle-audio");
+    if (btn) {
+        btn.classList.remove("active");
+        const icon = document.getElementById("audio-btn-icon");
+        const text = document.getElementById("audio-btn-text");
+        if (icon) icon.textContent = "🔊";
+        if (text) text.textContent = "Listen";
+    }
+
+    const eq = document.getElementById("audio-eq");
+    if (eq) eq.classList.remove("playing");
 }
 
 function playSignalAudio() {
@@ -309,8 +338,18 @@ function playSignalAudio() {
 
     stopAudio();
     isAudioPlaying = true;
-    document.getElementById("btn-toggle-audio").innerHTML = "⏹ Stop Audio";
-    document.getElementById("btn-toggle-audio").classList.add("active");
+
+    const btn = document.getElementById("btn-toggle-audio");
+    if (btn) {
+        btn.classList.add("active");
+        const icon = document.getElementById("audio-btn-icon");
+        const text = document.getElementById("audio-btn-text");
+        if (icon) icon.textContent = "⏹";
+        if (text) text.textContent = "Stop";
+    }
+
+    const eq = document.getElementById("audio-eq");
+    if (eq) eq.classList.add("playing");
 
     const stype = currentSampleData.signal_type;
     const now = audioCtx.currentTime;
@@ -434,7 +473,19 @@ async function fetchQueue(selectFirst = false) {
         const response = await fetch("/api/queue");
         const data = await response.json();
         if (data.status === "success") {
-            renderQueue(data.queue, selectFirst);
+            allQueueItems = data.queue;
+            const searchInput = document.getElementById("queue-search");
+            const query = searchInput ? searchInput.value.toLowerCase().trim() : "";
+            if (query) {
+                const filtered = allQueueItems.filter(item => 
+                    item.sample_id.toLowerCase().includes(query) ||
+                    item.predicted_type.toLowerCase().includes(query) ||
+                    item.priority_level.toLowerCase().includes(query)
+                );
+                renderQueue(filtered, selectFirst);
+            } else {
+                renderQueue(data.queue, selectFirst);
+            }
             updateRadarTargets(data.queue);
         }
     } catch (err) {
@@ -444,11 +495,11 @@ async function fetchQueue(selectFirst = false) {
 
 function renderQueue(items, selectFirst) {
     const queueList = document.getElementById("queue-list");
-    document.getElementById("queue-count").textContent = `${items.length} SIGNALS`;
+    document.getElementById("queue-count").textContent = `${items.length} Signals`;
     queueList.innerHTML = "";
 
     if (items.length === 0) {
-        queueList.innerHTML = `<div style="text-align: center; color: #71717a; padding: 30px; font-family: var(--font-mono); font-size: 11px;">[ Queue Empty ]<br>Click 'Batch (6)' or 'Live Sweep'</div>`;
+        queueList.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 36px 12px; font-family: var(--font-mono); font-size: 11px;">[ Queue Vacant ]<br><span style="color: var(--text-dim); font-size: 10px;">Click 'Batch (6)' or 'Live Sweep'</span></div>`;
         return;
     }
 
@@ -460,17 +511,17 @@ function renderQueue(items, selectFirst) {
         else if (badgeLevel === "high") pillClass = "pill-high";
         else if (badgeLevel === "medium") pillClass = "pill-medium";
 
-        card.className = `queue-item ${badgeLevel}-badge ${item.sample_id === activeSampleId ? "active" : ""} ${item.reviewed ? "reviewed" : ""}`;
+        card.className = `queue-item-card ${badgeLevel}-badge ${item.sample_id === activeSampleId ? "active" : ""} ${item.reviewed ? "reviewed" : ""}`;
         card.dataset.id = item.sample_id;
 
         card.innerHTML = `
-            <div class="item-top">
-                <span class="item-rank">#${String(index + 1).padStart(2, '0')} &bull; ARR #${item.original_arrival_order}</span>
+            <div class="card-row-top">
+                <span class="card-rank-tag">#${String(index + 1).padStart(2, '0')} &bull; ARR #${item.original_arrival_order}</span>
                 <span class="pill-badge ${pillClass}">${item.priority_level}</span>
             </div>
-            <div class="item-title">${item.predicted_type}</div>
-            <div class="item-bottom">
-                <span>PRIORITY: <strong class="score-num">${item.priority_score}</strong></span>
+            <div class="card-emitter-title">${item.predicted_type}</div>
+            <div class="card-row-bottom">
+                <span>PRIORITY: <strong class="score-accent">${item.priority_score}</strong></span>
                 <span>ANOMALY: ${(item.anomaly_score * 100).toFixed(0)}%</span>
             </div>
         `;
@@ -490,8 +541,8 @@ function renderQueue(items, selectFirst) {
 async function selectSample(sampleId) {
     activeSampleId = sampleId;
 
-    document.querySelectorAll(".queue-item").forEach(c => c.classList.remove("active"));
-    const selectedCard = document.querySelector(`.queue-item[data-id="${sampleId}"]`);
+    document.querySelectorAll(".queue-item-card").forEach(c => c.classList.remove("active"));
+    const selectedCard = document.querySelector(`.queue-item-card[data-id="${sampleId}"]`);
     if (selectedCard) selectedCard.classList.add("active");
 
     try {
@@ -525,24 +576,34 @@ function updateDashboardWithSample(sampleData) {
     document.getElementById("diag-snr").textContent = `${feat.estimated_snr_db} dB`;
     document.getElementById("diag-entropy").textContent = feat.spectral_entropy;
 
-    // 2. Explainability
+    // 2. Explainability with Real Visual Meters
     const explainList = document.getElementById("explain-list");
     explainList.innerHTML = "";
     prio.explanations.forEach(e => {
         const el = document.createElement("div");
         const fname = e.factor.toLowerCase();
-        let factorClass = "factor-snr";
-        if (fname.includes("anomaly")) factorClass = "factor-anomaly";
-        else if (fname.includes("threat")) factorClass = "factor-threat";
-        else if (fname.includes("uncertainty")) factorClass = "factor-uncertainty";
+        
+        // Parse numerical point value
+        const ptsMatch = e.points.match(/([0-9.]+)/);
+        const ptsVal = ptsMatch ? parseFloat(ptsMatch[1]) : 15;
+        // Map to percentage (max points for anomaly is ~40)
+        const meterPercent = Math.min(100, Math.max(8, Math.round((ptsVal / 40.0) * 100)));
 
-        el.className = `factor-card ${factorClass}`;
+        let fillClass = "fill-blue";
+        if (fname.includes("anomaly")) fillClass = "fill-rose";
+        else if (fname.includes("threat")) fillClass = "fill-amber";
+        else if (fname.includes("quality") || fname.includes("snr")) fillClass = "fill-emerald";
+
+        el.className = "explain-card-v2";
         el.innerHTML = `
-            <div class="factor-header">
+            <div class="explain-card-head">
                 <span>${e.factor}</span>
-                <span class="factor-points">${e.points}</span>
+                <span class="explain-score-pts">${e.points}</span>
             </div>
-            <div class="factor-desc">${e.description}</div>
+            <div class="meter-track">
+                <div class="meter-fill ${fillClass}" style="width: ${meterPercent}%;"></div>
+            </div>
+            <div class="explain-desc-text">${e.description}</div>
         `;
         explainList.appendChild(el);
     });
@@ -551,7 +612,7 @@ function updateDashboardWithSample(sampleData) {
     const timeLabels = sampleData.time_preview.map(t => (t * 1e6).toFixed(1));
     waveformChart.data.labels = timeLabels;
     waveformChart.data.datasets[0].data = sampleData.waveform_preview;
-    waveformChart.data.datasets[0].borderColor = pred.is_anomaly ? "#f43f5e" : "#3b82f6";
+    waveformChart.data.datasets[0].borderColor = pred.is_anomaly ? "#f43f5e" : "#38bdf8";
     waveformChart.update();
 
     // 4. Frequency-Domain FFT Spectrum Chart
