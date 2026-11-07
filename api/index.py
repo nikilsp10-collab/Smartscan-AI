@@ -1,30 +1,30 @@
 import os
 import sys
+import urllib.parse
 
 # Ensure project root is on Python path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from flask import jsonify, request
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from src.app import app
 
 
-@app.route("/api/debug-env")
-def debug_env():
-    return jsonify({k: v for k, v in request.environ.items() if isinstance(v, (str, int, float, bool))})
-
-
 class VercelPathFixMiddleware:
-    """WSGI middleware ensuring proper URL dispatching under Vercel serverless rewrites."""
+    """WSGI middleware ensuring 100% accurate URL routing on Vercel serverless rewrites."""
 
     def __init__(self, wsgi_app):
         self.wsgi_app = wsgi_app
 
     def __call__(self, environ, start_response):
-        matched_path = environ.get("HTTP_X_MATCHED_PATH")
-        if matched_path:
-            environ["PATH_INFO"] = matched_path.split("?")[0]
+        qs_raw = environ.get("QUERY_STRING", "")
+        if "__path__=" in qs_raw:
+            qs = urllib.parse.parse_qs(qs_raw, keep_blank_values=True)
+            real_path = qs.pop("__path__", ["/"])[0]
+            if not real_path.startswith("/"):
+                real_path = "/" + real_path
+            environ["PATH_INFO"] = real_path
+            environ["QUERY_STRING"] = urllib.parse.urlencode(qs, doseq=True)
         else:
             path = environ.get("PATH_INFO", "")
             for prefix in ["/api/index.py", "/api/index"]:
