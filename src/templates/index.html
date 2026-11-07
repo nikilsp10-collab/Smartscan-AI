@@ -3,122 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMARTSCAN AI &bull; Tactical Electronic Warfare Triage</title>
+    <title>SmartScan &bull; Signal Analysis & Prioritization</title>
     <link rel="stylesheet" href="/static/css/style.css">
     <!-- Chart.js local offline bundle -->
     <script src="/static/js/chart.min.js"></script>
 </head>
 <body>
 
-    <!-- Tactical Top Status Bar -->
-    <header class="tactical-header">
-        <div class="brand-wrapper">
-            <div class="status-beacon"></div>
-            <div class="brand-titles">
-                <h1>SMARTSCAN <span>AI</span> &bull; EW COMMAND</h1>
-                <p>AI-POWERED INTELLIGENT SIGNAL ANALYSIS &bull; ADAPTIVE SPECTRUM TRIAGE</p>
+    <!-- Main Navigation Header -->
+    <header class="app-header">
+        <div class="brand-block">
+            <div class="brand-icon">SS</div>
+            <div class="brand-text">
+                <h1>SmartScan</h1>
+                <p>Signal Analysis & Prioritization System</p>
             </div>
         </div>
 
-        <div class="action-cluster">
-            <button id="btn-toggle-sweep" class="btn-hud" title="Toggle automatic continuous live RF spectrum scanning">
-                ▶ LIVE SWEEP: OFF
+        <div class="header-actions">
+            <button id="btn-inject-anomaly" class="btn-tool btn-tool-danger" title="Inject an anomalous emitter to test priority promotion">
+                ⚡ Inject Anomaly
             </button>
-            <button id="btn-inject-anomaly" class="btn-hud btn-hud-danger" title="Inject an exotic unknown waveform to trigger immediate #1 priority promotion">
-                ⚡ INJECT ANOMALY
+            <button id="btn-inject-radar" class="btn-tool" title="Inject periodic pulsed radar signal">
+                🎯 Pulsed Radar
             </button>
-            <button id="btn-inject-radar" class="btn-hud" title="Inject high-priority pulsed tracking radar">
-                🎯 RADAR
+            <button id="btn-inject-chirp" class="btn-tool" title="Inject linear frequency modulated chirp">
+                📡 LFM Chirp
             </button>
-            <button id="btn-inject-chirp" class="btn-hud" title="Inject linear frequency modulated chirp">
-                📡 LFM CHIRP
+            <button id="btn-simulate-batch" class="btn-tool" title="Ingest batch of 6 mixed signals">
+                🔄 Batch (6)
             </button>
-            <button id="btn-simulate-batch" class="btn-hud" title="Ingest a batch of 6 mixed signals">
-                🔄 BATCH (6)
+            <button id="btn-toggle-sweep" class="btn-tool" title="Toggle automatic continuous spectrum surveillance">
+                ▶ Live Sweep: OFF
             </button>
-            <button id="btn-run-benchmark" class="btn-hud btn-hud-warning" title="Run empirical comparison against fixed-order scanning">
-                📊 BENCHMARK
+            <button id="btn-run-benchmark" class="btn-tool btn-tool-warning" title="Run empirical performance validation against fixed-order scanning">
+                📊 Benchmark
             </button>
-            <button id="btn-clear-queue" class="btn-hud" title="Clear current queue">
-                🗑️ CLEAR
+            <button id="btn-clear-queue" class="btn-tool" title="Clear current queue">
+                🗑️ Clear
             </button>
         </div>
     </header>
 
-    <!-- System Telemetry Strip -->
-    <div class="hud-strip">
-        <div class="hud-strip-item">SPECTRUM: <strong>0.0 - 10.0 MHz</strong></div>
-        <div class="hud-strip-item">SAMPLING: <strong>20.0 MS/s</strong></div>
-        <div class="hud-strip-item">DSP LATENCY: <strong id="hud-latency">1.1 ms</strong></div>
-        <div class="hud-strip-item">RADAR SWEEP: <strong id="hud-sweep-status">ACTIVE</strong></div>
-        <div class="hud-strip-item">QUEUE MODE: <strong id="hud-queue-mode" style="color: var(--accent-cyan);">ADAPTIVE AI</strong></div>
+    <!-- Telemetry Status Strip -->
+    <div class="status-strip">
+        <div class="status-badge-dot">
+            <span class="status-dot"></span>
+            <span>SYSTEM ACTIVE</span>
+        </div>
+        <div class="status-indicators">
+            <div class="status-item">SPAN: <strong>0.0 - 10.0 MHz</strong></div>
+            <div class="status-item">SAMPLE RATE: <strong>20.0 MS/s</strong></div>
+            <div class="status-item">DSP LATENCY: <strong id="hud-latency">1.1 ms</strong></div>
+            <div class="status-item">SWEEP: <strong id="hud-sweep-status">STANDBY</strong></div>
+            <div class="status-item">QUEUE MODE: <strong>ADAPTIVE</strong></div>
+        </div>
     </div>
 
-    <!-- Main Grid -->
-    <main class="dashboard-grid">
+    <!-- Main 3-Column Layout -->
+    <main class="main-layout">
 
-        <!-- Column 1: Adaptive Review Queue -->
-        <section class="hud-panel">
-            <div class="hud-panel-header">
-                <h2><span>⚡</span> ADAPTIVE REVIEW QUEUE</h2>
-                <span id="queue-count" class="hud-badge badge-critical">0 SIGNALS</span>
+        <!-- Column 1: Signal Triage Queue -->
+        <section class="panel-container">
+            <div class="panel-head">
+                <h2>Signal Queue</h2>
+                <span id="queue-count" class="pill-badge pill-critical">0 SIGNALS</span>
             </div>
-            <div class="hud-panel-body">
-                <div id="queue-list" class="queue-list">
+            <div class="panel-body">
+                <div id="queue-list" class="queue-items">
                     <!-- Populated dynamically by dashboard.js -->
                 </div>
             </div>
         </section>
 
-        <!-- Column 2: Triple Visualizer (Oscillogram + FFT Spectrum + Radar PPI / Waterfall) -->
-        <section class="hud-panel">
-            <div class="hud-panel-header">
-                <h2><span>📈</span> MULTI-SPECTRAL SENSOR VISUALIZER</h2>
+        <!-- Column 2: Scientific Visualizer -->
+        <section class="panel-container">
+            <div class="panel-head">
+                <h2>Sensor Visualizer</h2>
                 <div style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">
-                    TARGET ID: <span id="diag-sample-id" style="color: var(--accent-cyan); font-weight: 700;">--</span>
+                    TARGET ID: <strong id="diag-sample-id" style="color: #fff;">--</strong>
                 </div>
             </div>
-            <div class="hud-panel-body">
-                <div class="visualizer-container">
+            <div class="panel-body">
+                <div class="charts-stack">
                     
-                    <!-- 1. Time Domain Oscillogram -->
-                    <div class="viz-box">
-                        <div class="viz-box-title">
-                            <span>TIME-DOMAIN OSCILLOGRAM (VOLTAGE vs TIME)</span>
-                            <span>WINDOW: 500 µs (10,000 SAMPLES)</span>
+                    <!-- Time-Domain Oscillogram -->
+                    <div class="chart-card">
+                        <div class="chart-card-head">
+                            <strong>TIME-DOMAIN OSCILLOGRAM (VOLTAGE vs TIME)</strong>
+                            <span>500 µs WINDOW &bull; 10,000 SAMPLES</span>
                         </div>
-                        <div class="viz-canvas-wrap">
+                        <div class="chart-viewport">
                             <canvas id="waveformCanvas"></canvas>
                         </div>
                     </div>
 
-                    <!-- 2. Frequency Domain FFT Spectrum -->
-                    <div class="viz-box">
-                        <div class="viz-box-title">
-                            <span>FREQUENCY-DOMAIN POWER SPECTRUM (FFT / PSD)</span>
-                            <span>BANDWIDTH: 0 - 10 MHz</span>
+                    <!-- Frequency-Domain Power Spectrum -->
+                    <div class="chart-card">
+                        <div class="chart-card-head">
+                            <strong>POWER SPECTRAL DENSITY (FFT)</strong>
+                            <span>BASEBAND SPAN &bull; 0 - 10 MHz</span>
                         </div>
-                        <div class="viz-canvas-wrap">
+                        <div class="chart-viewport">
                             <canvas id="spectrumCanvas"></canvas>
                         </div>
                     </div>
 
-                    <!-- 3. Radar PPI Scope + 2D Spectrogram Waterfall Heatmap -->
-                    <div class="radar-audio-row">
-                        <!-- Radar PPI Scope -->
-                        <div class="radar-box" title="Directional Plan Position Indicator (PPI) Radar Scope">
-                            <canvas id="radarCanvas" width="130" height="130"></canvas>
-                            <span style="font-family: var(--font-mono); font-size: 8px; color: var(--text-muted); position: absolute; bottom: 4px;">RADAR PPI SCOPE</span>
-                        </div>
-
-                        <!-- 2D Time-Frequency Spectrogram Heatmap -->
-                        <div class="waterfall-box" title="2D Time-Frequency Spectrogram (Thermal Waterfall)">
-                            <div class="viz-box-title" style="margin-bottom: 2px;">
-                                <span>TIME-FREQUENCY SPECTROGRAM (WATERFALL)</span>
-                                <span>THERMAL POWER MAP</span>
+                    <!-- Dual Spectrogram & Radar Scope -->
+                    <div class="secondary-viz-row">
+                        <!-- Spectrogram Waterfall -->
+                        <div class="sub-viz-box">
+                            <div class="chart-card-head" style="margin-bottom: 3px;">
+                                <strong>TIME-FREQUENCY SPECTROGRAM</strong>
+                                <span>THERMAL POWER</span>
                             </div>
                             <div style="flex: 1; position: relative;">
                                 <canvas id="waterfallCanvas"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Direction Finding Scope -->
+                        <div class="sub-viz-box">
+                            <div class="chart-card-head" style="margin-bottom: 3px;">
+                                <strong>BEARING RADAR SCOPE</strong>
+                                <span>DIRECTION FINDING</span>
+                            </div>
+                            <div style="flex: 1; position: relative;">
+                                <canvas id="radarCanvas"></canvas>
                             </div>
                         </div>
                     </div>
@@ -127,77 +138,81 @@
             </div>
         </section>
 
-        <!-- Column 3: AI Diagnostics & Explainability -->
-        <section class="hud-panel">
-            <div class="hud-panel-header">
-                <h2><span>🧠</span> AI DIAGNOSTICS & EXPLAINABILITY</h2>
-                <button id="btn-mark-reviewed" class="btn-hud" style="padding: 3px 8px; font-size: 10px;">
-                    ✓ REVIEWED
+        <!-- Column 3: Telemetry, Audio Monitor & Explainability -->
+        <section class="panel-container">
+            <div class="panel-head">
+                <h2>Signal Inspection</h2>
+                <button id="btn-mark-reviewed" class="btn-tool" style="padding: 3px 8px; font-size: 10px;">
+                    ✓ Mark Reviewed
                 </button>
             </div>
-            <div class="hud-panel-body">
+            <div class="panel-body">
 
-                <!-- Audio Demodulator & Sonification Bar -->
-                <div class="audio-ctrl-strip">
-                    <div style="font-family: var(--font-mono); font-size: 11px;">
-                        <span>RF AUDIO SYNTH:</span>
+                <!-- RF Audio Demodulator & Sonification Monitor -->
+                <div class="audio-monitor-card">
+                    <div class="audio-monitor-info">
+                        <div class="audio-icon-wrap">🔊</div>
+                        <div class="audio-monitor-text">
+                            <strong>RF Audio Demodulator</strong>
+                            <span>Listen to synthesized waveform</span>
+                        </div>
                     </div>
-                    <button id="btn-toggle-audio" class="btn-hud" style="padding: 4px 10px;">
-                        🔊 PLAY AUDIO
+                    <button id="btn-toggle-audio" class="btn-audio">
+                        Play Audio
                     </button>
                 </div>
 
-                <!-- Primary Telemetry -->
-                <div class="diag-group">
-                    <div class="diag-group-title">EMITTER CLASSIFICATION & PRIORITY</div>
-                    <div class="hud-stat-grid">
-                        <div class="hud-tile">
-                            <div class="hud-tile-label">PREDICTED EMITTER</div>
-                            <div id="diag-pred-type" class="hud-tile-value" style="color: var(--accent-cyan); font-size: 13px;">--</div>
+                <!-- Classification & Urgency Block -->
+                <div class="section-block">
+                    <div class="section-label">Emitter Classification & Urgency</div>
+                    <div class="telemetry-grid">
+                        <div class="telemetry-card">
+                            <div class="telemetry-title">Predicted Emitter</div>
+                            <div id="diag-pred-type" class="telemetry-value" style="color: #93c5fd; font-size: 13px;">--</div>
                         </div>
-                        <div class="hud-tile">
-                            <div class="hud-tile-label">PRIORITY SCORE (0-100)</div>
-                            <div id="diag-prio-score" class="hud-tile-value" style="color: var(--accent-red);">--</div>
+                        <div class="telemetry-card">
+                            <div class="telemetry-title">Priority Score (0-100)</div>
+                            <div id="diag-prio-score" class="telemetry-value" style="color: #fda4af;">--</div>
                         </div>
-                        <div class="hud-tile">
-                            <div class="hud-tile-label">ANOMALY RATING</div>
-                            <div id="diag-anomaly-score" class="hud-tile-value">--</div>
+                        <div class="telemetry-card">
+                            <div class="telemetry-title">Anomaly Rating</div>
+                            <div id="diag-anomaly-score" class="telemetry-value">--</div>
                         </div>
-                        <div class="hud-tile">
-                            <div class="hud-tile-label">AI CONFIDENCE</div>
-                            <div id="diag-confidence" class="hud-tile-value">--</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- DSP Features -->
-                <div class="diag-group">
-                    <div class="diag-group-title">PHYSICAL DSP SPECTRAL METRICS</div>
-                    <div class="hud-stat-grid">
-                        <div class="hud-tile">
-                            <div class="hud-tile-label">CENTER FREQ</div>
-                            <div id="diag-center-freq" class="hud-tile-value" style="font-size: 12px;">--</div>
-                        </div>
-                        <div class="hud-tile">
-                            <div class="hud-tile-label">3-dB BANDWIDTH</div>
-                            <div id="diag-bandwidth" class="hud-tile-value" style="font-size: 12px;">--</div>
-                        </div>
-                        <div class="hud-tile">
-                            <div class="hud-tile-label">ESTIMATED SNR</div>
-                            <div id="diag-snr" class="hud-tile-value" style="font-size: 12px;">--</div>
-                        </div>
-                        <div class="hud-tile">
-                            <div class="hud-tile-label">SPECTRAL ENTROPY</div>
-                            <div id="diag-entropy" class="hud-tile-value" style="font-size: 12px;">--</div>
+                        <div class="telemetry-card">
+                            <div class="telemetry-title">AI Confidence</div>
+                            <div id="diag-confidence" class="telemetry-value">--</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Explainability Rationale -->
-                <div class="diag-group">
-                    <div class="diag-group-title">EXPLAINABLE AI REASONING (WHY FLAGGED?)</div>
+                <!-- Physical DSP Features -->
+                <div class="section-block">
+                    <div class="section-label">Physical Spectral Metrics</div>
+                    <div class="telemetry-grid">
+                        <div class="telemetry-card">
+                            <div class="telemetry-title">Center Frequency</div>
+                            <div id="diag-center-freq" class="telemetry-value" style="font-size: 12.5px;">--</div>
+                        </div>
+                        <div class="telemetry-card">
+                            <div class="telemetry-title">3-dB Bandwidth</div>
+                            <div id="diag-bandwidth" class="telemetry-value" style="font-size: 12.5px;">--</div>
+                        </div>
+                        <div class="telemetry-card">
+                            <div class="telemetry-title">Estimated SNR</div>
+                            <div id="diag-snr" class="telemetry-value" style="font-size: 12.5px;">--</div>
+                        </div>
+                        <div class="telemetry-card">
+                            <div class="telemetry-title">Spectral Entropy</div>
+                            <div id="diag-entropy" class="telemetry-value" style="font-size: 12.5px;">--</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Explainability Breakdown -->
+                <div class="section-block">
+                    <div class="section-label">Scoring Factor Breakdown</div>
                     <div id="explain-list">
-                        <!-- Populated dynamically -->
+                        <!-- Populated dynamically by dashboard.js -->
                     </div>
                 </div>
 
@@ -210,11 +225,11 @@
     <div id="benchmark-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>VERIFICATION BENCHMARK: FIXED-ORDER vs ADAPTIVE SCAN</h3>
+                <h3>Verification Benchmark: Fixed-Order vs Adaptive Scan</h3>
                 <button id="btn-close-modal" class="close-btn">&times;</button>
             </div>
             <div id="benchmark-results-container">
-                <!-- Rendered dynamically -->
+                <!-- Rendered dynamically by dashboard.js -->
             </div>
         </div>
     </div>

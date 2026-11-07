@@ -58,15 +58,15 @@ function initCharts() {
     const commonChartOptions = {
         responsive: true,
         maintainAspectRatio: false,
-        animation: { duration: 300 },
+        animation: { duration: 250 },
         scales: {
             x: {
-                grid: { color: "rgba(0, 240, 255, 0.05)" },
-                ticks: { color: "#62788f", font: { size: 9, family: "Courier New" } }
+                grid: { color: "rgba(255, 255, 255, 0.04)" },
+                ticks: { color: "#71717a", font: { size: 9, family: "ui-monospace, SF Mono, Menlo, monospace" } }
             },
             y: {
-                grid: { color: "rgba(0, 240, 255, 0.05)" },
-                ticks: { color: "#62788f", font: { size: 9, family: "Courier New" } }
+                grid: { color: "rgba(255, 255, 255, 0.04)" },
+                ticks: { color: "#71717a", font: { size: 9, family: "ui-monospace, SF Mono, Menlo, monospace" } }
             }
         },
         plugins: {
@@ -83,7 +83,7 @@ function initCharts() {
             datasets: [{
                 label: "Voltage",
                 data: [],
-                borderColor: "#00f0ff",
+                borderColor: "#3b82f6",
                 borderWidth: 1.5,
                 pointRadius: 0,
                 tension: 0.05
@@ -93,8 +93,8 @@ function initCharts() {
             ...commonChartOptions,
             scales: {
                 ...commonChartOptions.scales,
-                x: { ...commonChartOptions.scales.x, title: { display: true, text: "TIME (µs)", color: "#62788f", font: { size: 9 } } },
-                y: { ...commonChartOptions.scales.y, title: { display: true, text: "AMPLITUDE", color: "#62788f", font: { size: 9 } } }
+                x: { ...commonChartOptions.scales.x, title: { display: true, text: "TIME (µs)", color: "#71717a", font: { size: 9 } } },
+                y: { ...commonChartOptions.scales.y, title: { display: true, text: "AMPLITUDE", color: "#71717a", font: { size: 9 } } }
             }
         }
     });
@@ -108,8 +108,8 @@ function initCharts() {
             datasets: [{
                 label: "Power (dB)",
                 data: [],
-                borderColor: "#0088ff",
-                backgroundColor: "rgba(0, 136, 255, 0.12)",
+                borderColor: "#a855f7",
+                backgroundColor: "rgba(168, 85, 247, 0.12)",
                 fill: true,
                 borderWidth: 1.5,
                 pointRadius: 0,
@@ -120,8 +120,8 @@ function initCharts() {
             ...commonChartOptions,
             scales: {
                 ...commonChartOptions.scales,
-                x: { ...commonChartOptions.scales.x, title: { display: true, text: "FREQUENCY (MHz)", color: "#62788f", font: { size: 9 } } },
-                y: { ...commonChartOptions.scales.y, title: { display: true, text: "POWER (dB)", color: "#62788f", font: { size: 9 } } }
+                x: { ...commonChartOptions.scales.x, title: { display: true, text: "FREQUENCY (MHz)", color: "#71717a", font: { size: 9 } } },
+                y: { ...commonChartOptions.scales.y, title: { display: true, text: "POWER (dB)", color: "#71717a", font: { size: 9 } } }
             }
         }
     });
@@ -141,11 +141,11 @@ function initRadarScope() {
     const radius = w / 2 - 8;
 
     function drawRadar() {
-        ctx.fillStyle = "rgba(7, 13, 20, 0.18)";
+        ctx.fillStyle = "rgba(8, 8, 10, 0.22)";
         ctx.fillRect(0, 0, w, h);
 
         // Outer Range Rings
-        ctx.strokeStyle = "rgba(0, 240, 255, 0.2)";
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.08)";
         ctx.lineWidth = 1;
         for (let r = radius / 3; r <= radius; r += radius / 3) {
             ctx.beginPath();
@@ -162,13 +162,13 @@ function initRadarScope() {
         ctx.stroke();
 
         // Rotating Sweep Beam
-        radarAngle += 0.04;
+        radarAngle += 0.035;
         if (radarAngle >= Math.PI * 2) radarAngle = 0;
 
         const sweepX = cx + Math.cos(radarAngle) * radius;
         const sweepY = cy + Math.sin(radarAngle) * radius;
 
-        ctx.strokeStyle = "rgba(0, 255, 136, 0.9)";
+        ctx.strokeStyle = "rgba(16, 185, 129, 0.85)";
         ctx.lineWidth = 1.5;
         ctx.beginPath();
         ctx.moveTo(cx, cy);
@@ -177,8 +177,8 @@ function initRadarScope() {
 
         // Sweep Glow Gradient
         const gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
-        gradient.addColorStop(0, "rgba(0, 255, 136, 0.2)");
-        gradient.addColorStop(1, "rgba(0, 255, 136, 0.0)");
+        gradient.addColorStop(0, "rgba(16, 185, 129, 0.15)");
+        gradient.addColorStop(1, "rgba(16, 185, 129, 0.0)");
         ctx.fillStyle = gradient;
         ctx.beginPath();
         ctx.moveTo(cx, cy);
@@ -194,9 +194,9 @@ function initRadarScope() {
             const angleDiff = Math.abs((radarAngle - t.angle + Math.PI * 2) % (Math.PI * 2));
             const isIlluminated = angleDiff < 0.25;
 
-            ctx.fillStyle = t.isAnomaly ? "#ff2a5f" : (t.priority > 60 ? "#ffaa00" : "#00ff88");
+            ctx.fillStyle = t.isAnomaly ? "#f43f5e" : (t.priority > 60 ? "#f59e0b" : "#10b981");
             ctx.shadowColor = ctx.fillStyle;
-            ctx.shadowBlur = isIlluminated ? 12 : 3;
+            ctx.shadowBlur = isIlluminated ? 8 : 2;
 
             ctx.beginPath();
             ctx.arc(bx, by, isIlluminated ? 3.5 : 2.5, 0, Math.PI * 2);
@@ -293,7 +293,7 @@ function stopAudio() {
     });
     audioNodes = [];
     isAudioPlaying = false;
-    document.getElementById("btn-toggle-audio").innerHTML = "🔊 PLAY AUDIO";
+    document.getElementById("btn-toggle-audio").innerHTML = "Play Audio";
     document.getElementById("btn-toggle-audio").classList.remove("active");
 }
 
@@ -309,7 +309,7 @@ function playSignalAudio() {
 
     stopAudio();
     isAudioPlaying = true;
-    document.getElementById("btn-toggle-audio").innerHTML = "⏹️ STOP AUDIO";
+    document.getElementById("btn-toggle-audio").innerHTML = "⏹ Stop Audio";
     document.getElementById("btn-toggle-audio").classList.add("active");
 
     const stype = currentSampleData.signal_type;
@@ -448,24 +448,29 @@ function renderQueue(items, selectFirst) {
     queueList.innerHTML = "";
 
     if (items.length === 0) {
-        queueList.innerHTML = `<div style="text-align: center; color: #62788f; padding: 30px; font-family: var(--font-mono); font-size: 11px;">[ SPECTRUM QUEUE VACANT ]<br>CLICK 'BATCH' OR 'LIVE SWEEP'</div>`;
+        queueList.innerHTML = `<div style="text-align: center; color: #71717a; padding: 30px; font-family: var(--font-mono); font-size: 11px;">[ Queue Empty ]<br>Click 'Batch (6)' or 'Live Sweep'</div>`;
         return;
     }
 
     items.forEach((item, index) => {
         const card = document.createElement("div");
         const badgeLevel = item.priority_level.toLowerCase();
-        card.className = `queue-card ${badgeLevel}-badge ${item.sample_id === activeSampleId ? "active" : ""} ${item.reviewed ? "reviewed" : ""}`;
+        let pillClass = "pill-low";
+        if (badgeLevel === "critical") pillClass = "pill-critical";
+        else if (badgeLevel === "high") pillClass = "pill-high";
+        else if (badgeLevel === "medium") pillClass = "pill-medium";
+
+        card.className = `queue-item ${badgeLevel}-badge ${item.sample_id === activeSampleId ? "active" : ""} ${item.reviewed ? "reviewed" : ""}`;
         card.dataset.id = item.sample_id;
 
         card.innerHTML = `
-            <div class="card-top">
-                <span class="card-rank">#${index + 1} &bull; ARR #${item.original_arrival_order}</span>
-                <span class="hud-badge badge-${badgeLevel}">${item.priority_level}</span>
+            <div class="item-top">
+                <span class="item-rank">#${String(index + 1).padStart(2, '0')} &bull; ARR #${item.original_arrival_order}</span>
+                <span class="pill-badge ${pillClass}">${item.priority_level}</span>
             </div>
-            <div class="card-title">${item.predicted_type}</div>
-            <div class="card-bottom">
-                <span>PRIORITY: <strong class="card-score">${item.priority_score}</strong></span>
+            <div class="item-title">${item.predicted_type}</div>
+            <div class="item-bottom">
+                <span>PRIORITY: <strong class="score-num">${item.priority_score}</strong></span>
                 <span>ANOMALY: ${(item.anomaly_score * 100).toFixed(0)}%</span>
             </div>
         `;
@@ -485,8 +490,8 @@ function renderQueue(items, selectFirst) {
 async function selectSample(sampleId) {
     activeSampleId = sampleId;
 
-    document.querySelectorAll(".queue-card").forEach(c => c.classList.remove("active"));
-    const selectedCard = document.querySelector(`.queue-card[data-id="${sampleId}"]`);
+    document.querySelectorAll(".queue-item").forEach(c => c.classList.remove("active"));
+    const selectedCard = document.querySelector(`.queue-item[data-id="${sampleId}"]`);
     if (selectedCard) selectedCard.classList.add("active");
 
     try {
@@ -525,13 +530,19 @@ function updateDashboardWithSample(sampleData) {
     explainList.innerHTML = "";
     prio.explanations.forEach(e => {
         const el = document.createElement("div");
-        el.className = "explain-card";
+        const fname = e.factor.toLowerCase();
+        let factorClass = "factor-snr";
+        if (fname.includes("anomaly")) factorClass = "factor-anomaly";
+        else if (fname.includes("threat")) factorClass = "factor-threat";
+        else if (fname.includes("uncertainty")) factorClass = "factor-uncertainty";
+
+        el.className = `factor-card ${factorClass}`;
         el.innerHTML = `
-            <div class="explain-head">
+            <div class="factor-header">
                 <span>${e.factor}</span>
-                <span class="explain-score">${e.points}</span>
+                <span class="factor-points">${e.points}</span>
             </div>
-            <div class="explain-text">${e.description}</div>
+            <div class="factor-desc">${e.description}</div>
         `;
         explainList.appendChild(el);
     });
@@ -540,7 +551,7 @@ function updateDashboardWithSample(sampleData) {
     const timeLabels = sampleData.time_preview.map(t => (t * 1e6).toFixed(1));
     waveformChart.data.labels = timeLabels;
     waveformChart.data.datasets[0].data = sampleData.waveform_preview;
-    waveformChart.data.datasets[0].borderColor = pred.is_anomaly ? "#ff2a5f" : "#00f0ff";
+    waveformChart.data.datasets[0].borderColor = pred.is_anomaly ? "#f43f5e" : "#3b82f6";
     waveformChart.update();
 
     // 4. Frequency-Domain FFT Spectrum Chart
@@ -657,28 +668,28 @@ async function openBenchmarkModal() {
 function renderBenchmarkResults(b) {
     const container = document.getElementById("benchmark-results-container");
     container.innerHTML = `
-        <div class="hud-stat-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 20px;">
-            <div class="hud-tile">
-                <div class="hud-tile-label">QUEUE SPEEDUP</div>
-                <div class="hud-tile-value" style="color: #00f0ff;">+${b.position_improvement_pct}%</div>
+        <div class="telemetry-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 16px;">
+            <div class="telemetry-card">
+                <div class="telemetry-title">Queue Speedup</div>
+                <div class="telemetry-value" style="color: #3b82f6;">+${b.position_improvement_pct}%</div>
             </div>
-            <div class="hud-tile">
-                <div class="hud-tile-label">CLASSIFIER ACCURACY</div>
-                <div class="hud-tile-value" style="color: #00ff88;">${b.classification_accuracy_pct}%</div>
+            <div class="telemetry-card">
+                <div class="telemetry-title">Classifier Accuracy</div>
+                <div class="telemetry-value" style="color: #10b981;">${b.classification_accuracy_pct}%</div>
             </div>
-            <div class="hud-tile">
-                <div class="hud-tile-label">FALSE-ALARM RATE</div>
-                <div class="hud-tile-value" style="color: #ffaa00;">${b.false_alarm_rate_pct}%</div>
+            <div class="telemetry-card">
+                <div class="telemetry-title">False-Alarm Rate</div>
+                <div class="telemetry-value" style="color: #f59e0b;">${b.false_alarm_rate_pct}%</div>
             </div>
-            <div class="hud-tile">
-                <div class="hud-tile-label">DSP+AI LATENCY</div>
-                <div class="hud-tile-value" style="color: #fff;">${b.average_latency_ms} ms</div>
+            <div class="telemetry-card">
+                <div class="telemetry-title">DSP+AI Latency</div>
+                <div class="telemetry-value" style="color: #fff;">${b.average_latency_ms} ms</div>
             </div>
         </div>
 
-        <div style="background: #080d14; padding: 14px; border-radius: 4px; border: 1px solid var(--border-hud); margin-bottom: 16px;">
-            <h4 style="font-family: var(--font-mono); font-size: 12px; color: #fff; margin-bottom: 6px;">EMPIRICAL PERFORMANCE ANALYSIS:</h4>
-            <p style="font-size: 11px; color: var(--text-muted); line-height: 1.6;">
+        <div style="background-color: var(--bg-card); padding: 12px 14px; border-radius: 4px; border: 1px solid var(--border-card); margin-bottom: 14px;">
+            <h4 style="font-size: 11.5px; font-weight: 700; color: #fff; margin-bottom: 4px; text-transform: uppercase; font-family: var(--font-mono);">Empirical Performance Analysis:</h4>
+            <p style="font-size: 11px; color: var(--text-secondary); line-height: 1.55;">
                 In traditional fixed-order sweeps, high-priority threats and anomalies waited until an average position of <strong>#${b.fixed_order_avg_position}</strong>. 
                 Under SmartScan AI's adaptive queue, they were promoted to an average position of <strong>#${b.adaptive_avg_position}</strong>, reducing critical review wait times by <strong>${b.position_improvement_pct}%</strong> without sacrificing real-time throughput (${b.average_latency_ms} ms / sample).
             </p>
@@ -686,7 +697,7 @@ function renderBenchmarkResults(b) {
 
         <table style="width: 100%; font-family: var(--font-mono); font-size: 10px; border-collapse: collapse; text-align: left;">
             <thead>
-                <tr style="border-bottom: 1px solid var(--border-hud); color: var(--text-muted);">
+                <tr style="border-bottom: 1px solid var(--border-card); color: var(--text-muted);">
                     <th style="padding: 6px;">TARGET ID</th>
                     <th style="padding: 6px;">SIGNAL EMITTER</th>
                     <th style="padding: 6px;">SCORE</th>
@@ -699,15 +710,15 @@ function renderBenchmarkResults(b) {
                 ${b.samples_summary.map(s => {
                     const diff = s.fixed_pos - s.adaptive_pos;
                     const changeHtml = diff > 0 
-                        ? `<span style="color: #00ff88;">▲ +${diff} RANKS</span>` 
-                        : (diff < 0 ? `<span style="color: #ff2a5f;">▼ ${diff}</span>` : `<span style="color: var(--text-muted);">-</span>`);
+                        ? `<span style="color: #10b981; font-weight: 600;">▲ +${diff} RANKS</span>` 
+                        : (diff < 0 ? `<span style="color: #f43f5e; font-weight: 600;">▼ ${diff}</span>` : `<span style="color: var(--text-muted);">-</span>`);
                     return `
                         <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);">
-                            <td style="padding: 6px; color: var(--accent-cyan);">${s.sample_id}</td>
-                            <td style="padding: 6px; font-weight: 700;">${s.type}</td>
+                            <td style="padding: 6px; color: var(--text-secondary);">${s.sample_id}</td>
+                            <td style="padding: 6px; font-weight: 600; color: #fff;">${s.type}</td>
                             <td style="padding: 6px; color: #fff;">${s.score}</td>
-                            <td style="padding: 6px;">#${s.fixed_pos}</td>
-                            <td style="padding: 6px; font-weight: 800; color: #00ff88;">#${s.adaptive_pos}</td>
+                            <td style="padding: 6px; color: var(--text-muted);">#${s.fixed_pos}</td>
+                            <td style="padding: 6px; font-weight: 700; color: #3b82f6;">#${s.adaptive_pos}</td>
                             <td style="padding: 6px;">${changeHtml}</td>
                         </tr>
                     `;
