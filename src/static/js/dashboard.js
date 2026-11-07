@@ -734,63 +734,68 @@ async function openBenchmarkModal() {
 function renderBenchmarkResults(b) {
     const container = document.getElementById("benchmark-results-container");
     container.innerHTML = `
-        <div class="telemetry-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 16px;">
-            <div class="telemetry-card">
-                <div class="telemetry-title">Queue Speedup</div>
-                <div class="telemetry-value" style="color: #3b82f6;">+${b.position_improvement_pct}%</div>
+        <div class="bench-kpi-grid">
+            <div class="bench-kpi-card">
+                <div class="bench-kpi-title">Queue Speedup</div>
+                <div class="bench-kpi-val blue">+${b.position_improvement_pct}%</div>
             </div>
-            <div class="telemetry-card">
-                <div class="telemetry-title">Classifier Accuracy</div>
-                <div class="telemetry-value" style="color: #10b981;">${b.classification_accuracy_pct}%</div>
+            <div class="bench-kpi-card">
+                <div class="bench-kpi-title">Classifier Accuracy</div>
+                <div class="bench-kpi-val emerald">${b.classification_accuracy_pct}%</div>
             </div>
-            <div class="telemetry-card">
-                <div class="telemetry-title">False-Alarm Rate</div>
-                <div class="telemetry-value" style="color: #f59e0b;">${b.false_alarm_rate_pct}%</div>
+            <div class="bench-kpi-card">
+                <div class="bench-kpi-title">False-Alarm Rate</div>
+                <div class="bench-kpi-val amber">${b.false_alarm_rate_pct}%</div>
             </div>
-            <div class="telemetry-card">
-                <div class="telemetry-title">DSP+AI Latency</div>
-                <div class="telemetry-value" style="color: #fff;">${b.average_latency_ms} ms</div>
+            <div class="bench-kpi-card">
+                <div class="bench-kpi-title">DSP+AI Latency</div>
+                <div class="bench-kpi-val white">${b.average_latency_ms} ms</div>
             </div>
         </div>
 
-        <div style="background-color: var(--bg-card); padding: 12px 14px; border-radius: 4px; border: 1px solid var(--border-card); margin-bottom: 14px;">
-            <h4 style="font-size: 11.5px; font-weight: 700; color: #fff; margin-bottom: 4px; text-transform: uppercase; font-family: var(--font-mono);">Empirical Performance Analysis:</h4>
-            <p style="font-size: 11px; color: var(--text-secondary); line-height: 1.55;">
+        <div class="bench-analysis-box">
+            <div class="bench-analysis-title">Empirical Performance Analysis</div>
+            <div class="bench-analysis-text">
                 In traditional fixed-order sweeps, high-priority threats and anomalies waited until an average position of <strong>#${b.fixed_order_avg_position}</strong>. 
                 Under SmartScan AI's adaptive queue, they were promoted to an average position of <strong>#${b.adaptive_avg_position}</strong>, reducing critical review wait times by <strong>${b.position_improvement_pct}%</strong> without sacrificing real-time throughput (${b.average_latency_ms} ms / sample).
-            </p>
+            </div>
         </div>
 
-        <table style="width: 100%; font-family: var(--font-mono); font-size: 10px; border-collapse: collapse; text-align: left;">
-            <thead>
-                <tr style="border-bottom: 1px solid var(--border-card); color: var(--text-muted);">
-                    <th style="padding: 6px;">TARGET ID</th>
-                    <th style="padding: 6px;">SIGNAL EMITTER</th>
-                    <th style="padding: 6px;">SCORE</th>
-                    <th style="padding: 6px;">FIXED POS</th>
-                    <th style="padding: 6px;">SMARTSCAN POS</th>
-                    <th style="padding: 6px;">PROMOTION</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${b.samples_summary.map(s => {
-                    const diff = s.fixed_pos - s.adaptive_pos;
-                    const changeHtml = diff > 0 
-                        ? `<span style="color: #10b981; font-weight: 600;">▲ +${diff} RANKS</span>` 
-                        : (diff < 0 ? `<span style="color: #f43f5e; font-weight: 600;">▼ ${diff}</span>` : `<span style="color: var(--text-muted);">-</span>`);
-                    return `
-                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);">
-                            <td style="padding: 6px; color: var(--text-secondary);">${s.sample_id}</td>
-                            <td style="padding: 6px; font-weight: 600; color: #fff;">${s.type}</td>
-                            <td style="padding: 6px; color: #fff;">${s.score}</td>
-                            <td style="padding: 6px; color: var(--text-muted);">#${s.fixed_pos}</td>
-                            <td style="padding: 6px; font-weight: 700; color: #3b82f6;">#${s.adaptive_pos}</td>
-                            <td style="padding: 6px;">${changeHtml}</td>
-                        </tr>
-                    `;
-                }).join("")}
-            </tbody>
-        </table>
+        <div class="bench-table-wrapper">
+            <table class="bench-table">
+                <thead>
+                    <tr>
+                        <th>TARGET ID</th>
+                        <th>SIGNAL EMITTER</th>
+                        <th>SCORE</th>
+                        <th>FIXED POS</th>
+                        <th>SMARTSCAN POS</th>
+                        <th>TRIAGE PROMOTION</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${b.samples_summary.map(s => {
+                        const diff = s.fixed_pos - s.adaptive_pos;
+                        let changeHtml = `<span class="bench-delta-pill neutral">-</span>`;
+                        if (diff > 0) {
+                            changeHtml = `<span class="bench-delta-pill promoted">▲ +${diff} RANKS</span>`;
+                        } else if (diff < 0) {
+                            changeHtml = `<span class="bench-delta-pill demoted">▼ ${diff}</span>`;
+                        }
+                        return `
+                            <tr>
+                                <td class="cell-id">${s.sample_id}</td>
+                                <td class="cell-emitter">${s.type}</td>
+                                <td class="cell-score">${s.score}</td>
+                                <td class="cell-fixed">#${s.fixed_pos}</td>
+                                <td class="cell-adaptive">#${s.adaptive_pos}</td>
+                                <td>${changeHtml}</td>
+                            </tr>
+                        `;
+                    }).join("")}
+                </tbody>
+            </table>
+        </div>
     `;
 }
 
